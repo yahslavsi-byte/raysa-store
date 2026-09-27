@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raysa Store - Digital Store Premium</title>
+  <meta name="description" content="Raysa Store - Tempat jual beli produk digital, tools, dan template premium." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo-wrap" onclick="scrollToTop()">
+        <div class="logo-icon">R</div>
+        <span class="logo-text">RAYSA<span class="text-primary">STORE</span></span>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" onclick="toggleCart()" title="Keranjang">
+          🛒
+          <span id="cartBadge" class="cart-badge hidden">0</span>
+        </button>
+        <button id="userBtn" class="btn-primary btn-sm" onclick="handleUserClick()">Login</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge fade-in">⚡ Produk Digital Premium</div>
+    <h1 class="hero-title fade-in">
+      Selamat Datang di <span class="gradient-text">RAYSA STORE</span>
+    </h1>
+    <p class="hero-sub fade-in">
+      Tempat jual beli produk digital, tools, dan template premium dengan harga terjangkau.
+    </p>
+    <div class="hero-buttons fade-in">
+      <button onclick="scrollToProducts()" class="btn-primary glow">Jelajahi Produk</button>
+      <button onclick="openWA()" class="btn-outline">Hubungi Kami</button>
+    </div>
+  </section>
+
+  <!-- SEARCH + FILTER -->
+  <section class="container">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="searchInput" type="text" placeholder="Cari produk..." class="search-input" oninput="handleSearch(this.value)" />
+    </div>
+    <div class="filter-wrap">
+      <button onclick="filterCategory('all', event)" class="cat-btn cat-active">Semua</button>
+      <button onclick="filterCategory('proxy', event)" class="cat-btn">Proxy</button>
+      <button onclick="filterCategory('template', event)" class="cat-btn">Template</button>
+      <button onclick="filterCategory('tools', event)" class="cat-btn">Tools</button>
+      <button onclick="filterCategory('ebook', event)" class="cat-btn">Ebook</button>
+      <button onclick="filterCategory('lainnya', event)" class="cat-btn">Lainnya</button>
+    </div>
+  </section>
+
+  <!-- PRODUK -->
+  <section id="products" class="container products-section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 Produk Populer</h2>
+      <span id="productCount" class="product-count">Memuat...</span>
+    </div>
+    <div id="productGrid" class="product-grid"></div>
+    <div id="loadingState" class="empty-state">
+      <div class="empty-icon">⏳</div>
+      <p>Memuat produk...</p>
+      <span>Sebentar ya</span>
+    </div>
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">🔍</div>
+      <p>Produk tidak ditemukan</p>
+      <span>Coba kata kunci atau kategori lain</span>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>&copy; 2025 Raysa Store. All rights reserved.</p>
+    <p class="footer-sub">Dibuat dengan ❤️ dari HP</p>
+  </footer>
+
+  <!-- MODAL: AUTH -->
+  <div id="authModal" class="modal hidden">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="authTitle" class="modal-title">Masuk</h3>
+        <button onclick="closeModal('authModal')" class="modal-close">&times;</button>
+      </div>
+      <p class="modal-sub" id="authSub">Masuk untuk mulai berbelanja</p>
+      <div class="input-group">
+        <label class="input-label">Email</label>
+        <input id="authEmail" type="email" placeholder="nama@email.com" class="input" autocomplete="email" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <input id="authPass" type="password" placeholder="Minimal 6 karakter" class="input" autocomplete="current-password" />
+      </div>
+      <button onclick="handleAuth()" id="authSubmitBtn" class="btn-primary w-full">
+        <span id="authBtnText">Masuk</span>
+      </button>
+      <p class="switch-text">
+        <span id="switchText">Belum punya akun?</span>
+        <button onclick="switchAuth()" id="switchBtn" class="switch-btn">Daftar Sekarang</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- MODAL: PRODUCT DETAIL -->
+  <div id="productModal" class="modal hidden">
+    <div class="modal-box modal-box-lg" onclick="event.stopPropagation()">
+      <button onclick="closeModal('productModal')" class="modal-close floating">&times;</button>
+      <div id="productDetail"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CART -->
+  <div id="cartModal" class="modal hidden">
+    <div class="modal-box modal-box-lg" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">🛒 Keranjang</h3>
+        <button onclick="closeModal('cartModal')" class="modal-close">&times;</button>
+      </div>
+      <div id="cartContent"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHECKOUT -->
+  <div id="checkoutModal" class="modal hidden">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Konfirmasi Pesanan</h3>
+        <button onclick="closeModal('checkoutModal')" class="modal-close">&times;</button>
+      </div>
+      <div id="checkoutInfo" class="checkout-info"></div>
+      <div class="input-group">
+        <label class="input-label">Nama Lengkap</label>
+        <input id="buyerName" placeholder="Nama Anda" class="input" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">No. WhatsApp</label>
+        <input id="buyerWA" placeholder="08xxxxxxxxxx" class="input" type="tel" />
+      </div>
+      <div class="modal-actions">
+        <button onclick="closeModal('checkoutModal')" class="btn-outline flex-1">Batal</button>
+        <button onclick="proceedCheckout()" id="checkoutBtn" class="btn-success flex-1">Pesan via WA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-box modal-box-sm" onclick="event.stopPropagation()">
+      <div class="confirm-icon" id="confirmIcon">⚠️</div>
+      <h3 id="confirmTitle" class="modal-title text-center">Konfirmasi</h3>
+      <p id="confirmMsg" class="modal-sub text-center"></p>
+      <div class="modal-actions">
+        <button onclick="closeConfirm(false)" class="btn-outline flex-1">Batal</button>
+        <button onclick="closeConfirm(true)" id="confirmOkBtn" class="btn-primary flex-1">Ya</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DASHBOARD -->
+  <div id="dashboardModal" class="modal hidden">
+    <div class="modal-box modal-box-lg" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">👤 Dashboard</h3>
+        <button onclick="closeModal('dashboardModal')" class="modal-close">&times;</button>
+      </div>
+      <div id="dashboardContent"></div>
+    </div>
+  </div>
+
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- APP SCRIPTS -->
+  <script src="firebase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
