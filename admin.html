@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Raysa Store</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#dc2626" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+      <div class="splash-logo">R</div>
+      <div class="splash-title">ADMIN<span>PANEL</span></div>
+      <div class="splash-sub">Memuat...</div>
+      <div class="splash-spinner"></div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ============ LOGIN ADMIN ============ -->
+  <div id="adminLogin" class="admin-login-wrap">
+    <div class="modal-box" style="max-width: 380px;">
+      <div class="admin-logo">
+        <div class="logo-icon" style="width:52px;height:52px;font-size:24px;">R</div>
+      </div>
+      <h2 class="modal-title text-center" style="margin-bottom:6px;">Admin Panel</h2>
+      <p class="modal-sub text-center">Raysa Store Management</p>
+
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="input-group">
+          <label class="input-label">Email Admin</label>
+          <input id="adminEmail" type="email" placeholder="Email Admin" class="input" required />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input id="adminPass" type="password" placeholder="••••••••" class="input" required minlength="6" />
+        </div>
+        <button type="submit" id="adminLoginBtn" class="btn-primary w-full">Masuk Dashboard</button>
+      </form>
+
+      <p class="switch-text" style="margin-top:14px;">
+        <a href="index.html" style="color:#f87171;text-decoration:none;">← Kembali ke Toko</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ADMIN ============ -->
+  <div id="adminPanel" class="hidden">
+
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo-wrap" onclick="location.reload()">
+          <div class="logo-icon">R</div>
+          <span class="logo-text">ADMIN<span class="text-primary">PANEL</span></span>
+        </div>
+        <div class="nav-actions">
+          <button class="icon-btn" onclick="logoutAdmin()" title="Logout" aria-label="Logout">🚪</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container admin-container">
+
+      <!-- STATS -->
+      <div class="admin-stats">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <div class="stat-value" id="statProducts">0</div>
+            <div class="stat-label">Produk</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-info">
+            <div class="stat-value" id="statOrders">0</div>
+            <div class="stat-label">Pesanan</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <div class="stat-value" id="statRevenue">Rp 0</div>
+            <div class="stat-label">Pendapatan</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <div class="stat-value" id="statUsers">0</div>
+            <div class="stat-label">User</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="products">📦 Produk</button>
+        <button class="admin-tab" data-tab="orders">🛒 Pesanan</button>
+        <button class="admin-tab" data-tab="users">👥 User</button>
+        <button class="admin-tab" data-tab="settings">⚙️ Pengaturan</button>
+      </div>
+
+      <!-- TAB: PRODUK -->
+      <div id="tab-products" class="admin-tab-content">
+        <div class="admin-toolbar">
+          <input id="adminSearch" placeholder="🔍 Cari produk..." class="input" />
+          <button class="btn-primary" onclick="openProductForm()">+ Tambah Produk</button>
+        </div>
+        <div id="adminProductList" class="admin-product-list"></div>
+      </div>
+
+      <!-- TAB: PESANAN -->
+      <div id="tab-orders" class="admin-tab-content hidden">
+        <div class="admin-toolbar">
+          <input id="orderSearch" placeholder="🔍 Cari order ID / nama..." class="input" />
+          <select id="orderFilter" class="input" style="max-width:160px;">
+            <option value="all">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="done">Selesai</option>
+            <option value="cancel">Cancel</option>
+          </select>
+        </div>
+        <div id="adminOrderList"></div>
+      </div>
+
+      <!-- TAB: USERS -->
+      <div id="tab-users" class="admin-tab-content hidden">
+        <div id="adminUserList"></div>
+      </div>
+
+      <!-- TAB: SETTINGS -->
+      <div id="tab-settings" class="admin-tab-content hidden">
+        <div class="modal-box" style="max-width: 500px;">
+          <h3 class="modal-title mb-4">⚙️ Pengaturan</h3>
+
+          <div class="input-group">
+            <label class="input-label">Nomor WhatsApp (format 62...)</label>
+            <input id="setWa" class="input" placeholder="6288216380673" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Nama Toko</label>
+            <input id="setName" class="input" placeholder="Raysa Store" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Email Admin</label>
+            <input id="setAdminEmail" class="input" disabled />
+          </div>
+          <button class="btn-primary w-full" onclick="saveAllSettings()">Simpan Pengaturan</button>
+
+          <hr style="border:none;border-top:1px solid #374151;margin:20px 0;" />
+
+          <h3 class="modal-title mb-4" style="color:#f87171;">⚠️ Zona Bahaya</h3>
+          <button class="btn-outline w-full" onclick="resetProducts()">Reset Produk ke Default</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ MODAL: FORM PRODUK ============ -->
+  <div id="productFormModal" class="modal hidden">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="productFormTitle" class="modal-title">Tambah Produk</h3>
+        <button onclick="closeModal('productFormModal')" class="modal-close" aria-label="Tutup">&times;</button>
+      </div>
+
+      <form id="productForm" onsubmit="saveProductForm(event)">
+        <div class="input-group">
+          <label class="input-label">Nama Produk</label>
+          <input id="pfName" class="input" placeholder="Contoh: Raysa Proxy Update" required />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Harga (Rp)</label>
+          <input id="pfPrice" type="number" class="input" placeholder="50000" required min="0" />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Kategori</label>
+          <select id="pfCategory" class="input">
+            <option value="proxy">Proxy</option>
+            <option value="template">Template</option>
+            <option value="tools">Tools</option>
+            <option value="ebook">Ebook</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Label (opsional)</label>
+          <input id="pfTag" class="input" placeholder="HOT / NEW / PROMO" />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Ikon (emoji) atau URL Gambar</label>
+          <input id="pfImg" class="input" placeholder="🔥 atau https://..." />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Deskripsi</label>
+          <textarea id="pfDesc" class="input" rows="3" placeholder="Deskripsi produk..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" onclick="closeModal('productFormModal')" class="btn-outline flex-1">Batal</button>
+          <button type="submit" id="productSubmitBtn" class="btn-primary flex-1">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: CONFIRM ============ -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-box modal-box-sm" onclick="event.stopPropagation()">
+      <div class="confirm-icon" id="confirmIcon">⚠️</div>
+      <h3 id="confirmTitle" class="modal-title text-center">Konfirmasi</h3>
+      <p id="confirmMsg" class="modal-sub text-center"></p>
+      <div class="modal-actions">
+        <button onclick="closeConfirm(false)" class="btn-outline flex-1">Batal</button>
+        <button onclick="closeConfirm(true)" id="confirmOkBtn" class="btn-primary flex-1">Ya</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FIREBASE SDK ============ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- ============ APP SCRIPTS ============ -->
+  <script src="firebase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+
+</body>
+</html>
