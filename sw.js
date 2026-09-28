@@ -1,56 +1,41 @@
 /* =====================================================
-   Service Worker Raysa Store
-   Update: auto-detect versi baru
+   Service Worker Raysa Store - NETWORK FIRST
+   Prioritas ambil dari server, cache hanya fallback
    ===================================================== */
 
 const CACHE_VERSION = "raysa-v1.0.0";
-const ASSETS = [
-  "/",
-  "/index.html",
-  "/admin.html",
-  "/style.css",
-  "/data.js",
-  "/script.js",
-  "/admin.js",
-  "/firebase-config.js",
-  "/app-version.js"
-];
 
-// Install
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then(cache =>
-      cache.addAll(ASSETS).catch(err => console.warn("Cache err:", err))
-    )
-  );
+// Install — langsung aktif
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-// Activate
+// Activate — hapus semua cache lama
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))
-      )
-    )
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch
+// Fetch — network first, cache fallback
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
+  // Skip Firebase & external — biarkan langsung ke network
   if (event.request.url.includes("firebase") ||
       event.request.url.includes("gstatic") ||
-      event.request.url.includes("googleapis")) {
+      event.request.url.includes("googleapis") ||
+      event.request.url.includes("ui-avatars")) {
     return;
   }
 
+  // Network first untuk SEMUA file
   event.respondWith(
     fetch(event.request)
       .then(res => {
+        // Update cache di background
         const clone = res.clone();
         caches.open(CACHE_VERSION).then(c => c.put(event.request, clone));
         return res;
@@ -59,9 +44,7 @@ self.addEventListener("fetch", event => {
   );
 });
 
-// Message dari halaman → skip waiting
-self.addEventListener("message", event => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
+// Skip waiting
+self.addEventListener("message", e => {
+  if (e.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
